@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
    // Check command line arguments
     if ((argc != 3) && (argc != 4)){
       fprintf(stderr, "This programs tests GIF reading and writing\n");
-      fprintf(stderr, "A duplicate out.ppm output file will also be produced\n");
+      fprintf(stderr, "A duplicate PPM output file will also be produced\n");
       fprintf(stderr, "%s r|w|c gifFile [gifFile2] \n", argv[0]);
       fprintf(stderr, "Where: r|w       - read or write flags, required\n");
       fprintf(stderr, "       gifFile   - name of the file to read or write\n");
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
       h = inGif->height;
  
       // Write out the wedge as a ppm
-      writePPM("out.ppm", w, h, RGBframe);      
+      writePPM("outc.ppm", w, h, RGBframe);      
       
       //Get space for the index color array
       IndxFrame = malloc(h*w*sizeof(uint8_t));   
@@ -110,6 +110,10 @@ int main(int argc, char *argv[]) {
     
       //                   file name    canvas size    palette  palette depth  infinite loop 
       outGif = ge_new_gif2(argv [3], w, h, (uint8_t *)palette, palSize, 0);
+      if (outGif == NULL) {
+         fprintf(stderr, "Could not create %s gif file\n", argv [2]);
+         exit(GIF_ERROR);
+      }
       outGif->frame = IndxFrame;
 
       // add frame, 10 second delay
@@ -149,7 +153,11 @@ int main(int argc, char *argv[]) {
       //Get space for the index color array
       IndxArray = malloc(h*sizeof(uint8_t *));
       IndxFrame = malloc(h*w*sizeof(uint8_t));   
-    
+      if (!IndxFrame || !IndxArray) {
+          fprintf(stderr, "Could not allocate frame\n");
+          return(MALLOC_ERROR);
+      } 
+      
       // Setup array linkage
       for (i = 0; i < h; i++) {
           IndxArray[i] = &IndxFrame[i*w];
@@ -165,14 +173,19 @@ int main(int argc, char *argv[]) {
       } // end i
       
       // Write out the wedge as a ppm
-      writePPM("out.ppm", w, h, RGBframe);     
+      writePPM("outw.ppm", w, h, RGBframe);     
  
       // Build a complete index color file from the true color file
       palSize = createGIF(RGBframe, IndxFrame, w, h, palette, palSize);
-      printf("value %d\n", palSize);
-    
+      printf("Palette size %d\n", palSize);
+     
       //                   file name    canvas size    palette  palette depth  infinite loop 
       outGif = ge_new_gif2(argv [2], w, h, (uint8_t *)palette, palSize, 0);
+      if (outGif == NULL) {
+         fprintf(stderr, "Could not create %s gif file\n", argv [2]);
+         exit(GIF_ERROR);
+      }
+         
       outGif->frame = IndxFrame;
 
       // add frame, 10 second delay
@@ -222,7 +235,7 @@ int main(int argc, char *argv[]) {
      
       // Write the ppm version
       printf("Writing out.ppm version of %s file\n", argv [2]);
-      writePPM("out.ppm", inGif->width, inGif->height, RGBframe);  
+      writePPM("outr.ppm", inGif->width, inGif->height, RGBframe);  
      
       if (i == 0) { 
          gd_rewind(inGif);

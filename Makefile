@@ -10,9 +10,8 @@
 #############################################################################
 
 # File Names
-SOURCE  = example.c gifenc.c gigdec.c
+SOURCE  = example.c gifenc.c gifdec.c
 PROG    = example
-RESULTS = out.gif
 OTHERS  = rgb2hsv
 
 OBJS    = $(patsubst %.c,%.o, $(SOURCE))
@@ -22,57 +21,42 @@ CC       = gcc
 
 # Remove the sanitize and other options for production code
 #CFLAGS   = -O3 -Wall -std=c99 -pedantic 
-CFLAGS   = -O1 -g -Wall -std=c99 -pedantic -fsanitize=address -fsanitize=undefined
+CFLAGS   =  -g -fsanitize=address -fsanitize=undefined
 
 # sanitize does the same job as valgrind
 #VALGRIND = valgrind --tool=memcheck --leak-check=yes --track-origins=yes
 
 # Here is where the action occurs
 .SILENT:
-.PHONY: all test mem help clean
+.PHONY: all tests help clean
 
-all: $(PROG) others
+all: $(PROG) $(OTHERS)
 
-others: $(OTHERS)
+others:$(OTHERS)
 
-lab_a: lab_a.c
-	echo "Building others: $@.c"
-	$(CC) $(CFLAGS) -O0 $@.c -o $@
-   
-lab_b: lab_b.c
-	echo "Building others: $@.c"
-	$(CC) $(CFLAGS) -O0 $@.c -o $@
-   
-lab_c: lab_c.c
-	echo "Building others: $@.c"
-	$(CC) $(CFLAGS) -O0 $@.c -o $@
+$(OTHERS): $(OTHERS).c
+	@echo "Compiling: $(OTHERS).c to $(OTHERS)"
+	$(CC) $(CFLAGS) $(OTHERS).c -lm -o $(OTHERS)
 
-test: $(PROG)
-	@echo "Making test..."
-	./$(PROG)   >> $(RESULTS) 2>&1
-	cat $(RESULTS)
+tests: $(PROG)
+	@echo "Running tests..."
+	./$(PROG) r comic.gif 
+	./$(PROG) w out.gif
+	./$(PROG) c comic.gif copy.gif
 
 # Link the object files
-$(PROG): $(OBJS)
-	@echo "Linking: $(OBJS) to $(PROG)"
-	$(CC) $(CFLAGS) $(OBJS) -o $(PROG)
-
-# Build object files
-.c.o:
-	@echo "Compiling: $*.c"
-	$(CC) $(CFLAGS) -c $*.c
+$(PROG): $(SOURCE)
+	@echo "Compiling: $(SOURCE) to $(PROG)"
+	$(CC)  $(SOURCE) $(CFLAGS) -o $(PROG) 
 
 help:
-	@echo "make commands: all, test, mem, help, clean, others"
+	@echo "make commands: all, tests, help, clean"
 	@echo "  all  - builds the binary"
-	@echo "  test - runs the test"
+	@echo "  tests - runs the tests"
 	@echo "  help - this help"
 	@echo "  clean- removes unnecessary files"
-	@echo "  others- additional student files"
+	@echo "  others- additional files"
 
 clean:
-	-rm -f $(RESULTS)
-	-rm -f $(PROG) $(OTHERS)
-	-rm -f $(OBJS)
-	-rm -f $(OUT) 
+	-rm -f $(PROG) $(OTHERS) out.ppm copy.gif out.gif outc.ppm outw.ppm outr.ppm
 

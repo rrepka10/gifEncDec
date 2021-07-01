@@ -438,7 +438,7 @@ int createGIF(pixel *RGBframe, uint8_t *IndxFrame, int w, int h, pixel *palette,
    for (i = 0; i < h; i++) {
       for (j = 0; j < w; j++) {
          // find the matching color
-         for (k = 0; k < palSize; k++) {
+         for (k = 0; k <= palSize; k++) {
             // Search the color table for a match
             if ((palette[k].r == RGBframe [i*w+j].r) &&
                 (palette[k].g == RGBframe [i*w+j].g) &&
