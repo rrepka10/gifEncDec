@@ -12,6 +12,17 @@ extern "C" {
 
 typedef struct { uint8_t r; uint8_t g; uint8_t b; } pixel;
 
+/*----------------------------------------------------------------------------
+  We have to dummy out this structure because H needs 9 bits!  S & V only 
+  really need 7.  We will steal the top bit from S to be the 9th bit of H
+  H should take the values 0..360.  
+  S should take the values 0.100
+  V should take the values 0..100  
+----------------------------------------------------------------------------*/
+#define  S_MASK_LOW   (0x7f)
+#define  S_MASK_HIGH  (0x80)
+typedef struct { uint8_t h; uint8_t s; uint8_t v; } hsvPixel;
+
 // Decode
 typedef struct ge_GIF {
     uint16_t w, h;
@@ -61,7 +72,8 @@ typedef struct gd_GIF {
 
 
 // Encode
-ge_GIF *ge_new_gif2(const char *fname, uint16_t width, uint16_t height, uint8_t *palette, int depth, int loop);
+ge_GIF *ge_new_gif2(const char *fname, uint16_t width, uint16_t height, uint8_t *palette, 
+                                    int depth, int loop);
 void ge_add_frame(ge_GIF *gif, uint16_t delay);
 void ge_close_gif(ge_GIF* gif);
 uint8_t pallatize64( pixel pix );
@@ -79,7 +91,8 @@ void gd_close_gif(gd_GIF *gif);
 
 // other
 void writePPM(const char *filename, int x, int y, pixel *img);
-
+pixel HSVtoRGB(hsvPixel  hsv);
+hsvPixel RGBtoHSV(pixel pix);
 
 #endif /* GIFENCDEC_H */
 

@@ -10,7 +10,7 @@
 #############################################################################
 
 # File Names
-SOURCE  = example.c gifenc.c gifdec.c
+SOURCE  = example.c gifenc.c gifdec.c rgb2hsv.c
 PROG    = example
 OTHERS  = rgb2hsv
 
@@ -21,7 +21,7 @@ CC       = gcc
 
 # Remove the sanitize and other options for production code
 #CFLAGS   = -O3 -Wall -std=c99 -pedantic 
-CFLAGS   =  -g -fsanitize=address -fsanitize=undefined
+CFLAGS   =  -g -lm -fsanitize=address -fsanitize=undefined
 
 # sanitize does the same job as valgrind
 #VALGRIND = valgrind --tool=memcheck --leak-check=yes --track-origins=yes
@@ -36,7 +36,7 @@ others:$(OTHERS)
 
 $(OTHERS): $(OTHERS).c
 	@echo "Compiling: $(OTHERS).c to $(OTHERS)"
-	$(CC) $(CFLAGS) $(OTHERS).c -lm -o $(OTHERS)
+	$(CC) $(CFLAGS) $(OTHERS).c -lm -DTESTRGB  -o $(OTHERS)
 
 tests: $(PROG)
 	@echo "Running tests..."

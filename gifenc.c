@@ -12,6 +12,10 @@
 #include <unistd.h>
 #endif
 
+// Enable if you want the automatic color space calculated in HSV instead of RBG mode
+// This might generate a better palette
+// #define HSV_MODE
+
 /* helper to write a little-endian 16-bit number portably */
 #define write_num(fd, n) write((fd), (uint8_t []) {(n) & 0xFF, (n) >> 8}, 2)
 
@@ -418,6 +422,19 @@ int createGIF(pixel *RGBframe, uint8_t *IndxFrame, int w, int h, pixel *palette,
    uint8_t mask = 0xff;
    int i, j, k, palSize; 
    
+#ifdef HSV_MODE
+   hsvPixel hsvTemp;
+   // convert to HSV space
+      for (i = 0; i < h; i++) {
+         for (j = 0; j < w; j++) {
+            hsvTemp = RGBtoHSV(RGBframe [i*w+j]);
+            RGBframe [i*w+j].r = hsvTemp.h;
+            RGBframe [i*w+j].g = hsvTemp.s;
+            RGBframe [i*w+j].b = hsvTemp.v;
+      } // End for i
+   } // End while
+#endif 
+   
    // build the palette
    while ((palSize = genPallette(RGBframe, h, w, palLen, palette)) < 0) {
       // Mask out the low bits.
@@ -449,6 +466,17 @@ int createGIF(pixel *RGBframe, uint8_t *IndxFrame, int w, int h, pixel *palette,
          } // k
       }// j
    } // i
+
+
+#ifdef HSV_MODE
+   // Convert the HSV table back to rgb
+   for (k = 0; k <= palSize; k++) {
+      hsvTemp.h = palette [k].r;
+      hsvTemp.s = palette [k].g;
+      hsvTemp.v = palette [k].b;
+      palette[k] = HSVtoRGB(hsvTemp);
+   } // k
+#endif
 
    return(palSize);
 }
