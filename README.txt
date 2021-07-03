@@ -1,3 +1,13 @@
+This is a very simple, C stand alone library to convert a true color 24 bit image into a GIF file.
+This code can automatically create a color palette from the true color image without any prior knowledge,
+the code just make a "good" GIF.  See the example.c code on how to use the encoder and decoder to make
+true color images.
+
+Summary:  Easy C code to convert true color images into a GIF
+
+The rest of the content here detailes the borrowed lower level libraries and is not realy needed
+unless you want to know about GIF detail
+======================================================================
 GIF encoder
 ===========
 
